@@ -528,6 +528,7 @@ type statCmd struct {
 	Recursive *bool `json:"recursive"`
 	Quiet     *bool `json:"quiet"`
 	Md5sum    *bool `json:"md5sum"`
+	CsvOutput *bool `json:"csv-out"`
 }
 
 func (cmd *statCmd) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -537,6 +538,7 @@ func (cmd *statCmd) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	cmd.Quiet = fs.Bool(drive.QuietKey, false, "if set, do not log anything but errors")
 	cmd.ById = fs.Bool(drive.CLIOptionId, false, "stat by id instead of path")
 	cmd.Md5sum = fs.Bool(drive.Md5sumKey, false, "produce output compatible with md5sum(1)")
+	cmd.CsvOutput = fs.Bool(drive.CLIOptionCsv, false, "CSV output")
 	return fs
 }
 
@@ -569,6 +571,7 @@ func (scmd *statCmd) Run(args []string, definedFlags map[string]*flag.Flag) {
 		Recursive: *cmd.Recursive,
 		Quiet:     *cmd.Quiet,
 		Md5sum:    *cmd.Md5sum,
+		CsvOutput: *cmd.CsvOutput,
 	}
 
 	if *cmd.ById {

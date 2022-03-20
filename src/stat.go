@@ -73,10 +73,29 @@ func prettyPermission(logf log.Loggerf, perm *drive.Permission) {
 		&keyValue{"Role", perm.Role},
 		&keyValue{"AccountType", perm.Type},
 	}
+
 	for _, kv := range kvList {
-		logf("%-20s %-30v\n", kv.key, kv.value.(string))
+	logf("%-20s %-30v\n", kv.key, kv.value.(string))
 	}
 	logf("*\n")
+
+}
+
+func prettyFilePermission(logf log.Loggerf, perm *drive.Permission, file *File) {
+	dirType := "file"
+	if file.IsDir {
+		dirType = "folder"
+	}
+
+	kvList := []*keyValue{
+		&keyValue{"Role", perm.Role},
+		&keyValue{"AccountType", perm.Type},
+	}
+	logf("%-60v,%-10v,%-25v,%-25v\t\t", file.Name, dirType, perm.Name, perm.EmailAddress)
+	for _, kv := range kvList {
+		logf(",%-25v", kv.value.(string)) 
+	}
+	logf("\n")
 }
 
 func prettyFileStat(logf log.Loggerf, relToRootPath string, file *File) {
@@ -132,6 +151,8 @@ func prettyFileStat(logf log.Loggerf, relToRootPath string, file *File) {
 		logf("%-25s %-30v\n", kv.key, kv.value.(string))
 	}
 }
+	
+var firstLine = true
 
 func (g *Commands) stat(relToRootPath string, file *File, depth int) error {
 	if g.opts.Md5sum {
@@ -139,15 +160,26 @@ func (g *Commands) stat(relToRootPath string, file *File, depth int) error {
 			g.log.Logf("%32s  %s\n", file.Md5Checksum, strings.TrimPrefix(relToRootPath, "/"))
 		}
 	} else {
-		prettyFileStat(g.log.Logf, relToRootPath, file)
 		perms, permErr := g.rem.listPermissions(file.Id)
-		if permErr != nil {
-			return permErr
+		if g.opts.CsvOutput {
+			if firstLine {
+				g.log.Logf("File Name, Type, Name, Email, Role, AccountType\n")
+				firstLine = false
+			}
+			for _, perm := range perms {
+				prettyFilePermission(g.log.Logf, perm, file)
+			}
+		} else {
+			prettyFileStat(g.log.Logf, relToRootPath, file)
+			if permErr != nil {
+				return permErr
+			}
+
+			for _, perm := range perms {
+				prettyPermission(g.log.Logf, perm)
+			}
 		}
 
-		for _, perm := range perms {
-			prettyPermission(g.log.Logf, perm)
-		}
 	}
 
 	if depth == 0 {

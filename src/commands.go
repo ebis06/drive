@@ -118,6 +118,8 @@ type Options struct {
 
 	// Limit the upload bandwidth to n KiB/s.
 	UploadRateLimit int
+
+	CsvOutput bool
 }
 
 func (opts *Options) CryptoEnabled() bool {

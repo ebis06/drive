@@ -254,7 +254,7 @@ const (
 	CLIOptionWithLink           = "with-link"
 	CLIOptionDesktopLinks       = "desktop-links"
 	CLIOptionKeepParent         = "keep-parent"
-
+	CLIOptionCsv		    = "csv-output"
 	CLIOptionUploadChunkSize = "upload-chunk-size"
 	CLIOptionUploadRateLimit = "upload-rate-limit"
 
